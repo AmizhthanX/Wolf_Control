@@ -1,0 +1,61 @@
+project_id = "wolfpc"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 500
+
+[db]
+port = 54322
+major_version = 15
+
+[realtime]
+enabled = true
+
+[auth]
+enabled = true
+site_url = "wolfpc://auth"
+additional_redirect_urls = ["wolfpc://auth"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = false          # single-user system; create the account by hand
+
+[auth.email]
+enable_signup = false
+enable_confirmations = false
+
+# ---------------------------------------------------------------------------
+# Edge Functions
+#
+# The ESP32 and the Windows agent hold no Supabase JWT — they authenticate with
+# a device HMAC (PROTOCOL §3), which their handlers verify before touching
+# anything. So the platform's JWT gate has to be off for those four, and the
+# handler itself is the gate.
+#
+# The three phone-facing functions keep verify_jwt on: a request with no valid
+# session is rejected by the platform before it ever reaches our code.
+# ---------------------------------------------------------------------------
+
+[functions.device-poll]
+verify_jwt = false
+
+[functions.device-ack]
+verify_jwt = false
+
+[functions.agent-status]
+verify_jwt = false
+
+[functions.login-challenge]
+verify_jwt = false
+
+[functions.enqueue-command]
+verify_jwt = true
+
+[functions.pair-device]
+verify_jwt = true
+
+[functions.login-respond]
+verify_jwt = true

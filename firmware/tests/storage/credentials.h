@@ -1,0 +1,6 @@
+#define CFG_WIFI_SSID "build-wifi"
+#define CFG_WIFI_PASSWORD "build-password"
+#define CFG_DEVICE_ID "build-device"
+#define CFG_DEVICE_SECRET "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+#define CFG_SUPABASE_URL "https://build.example"
+#define CFG_SUPABASE_ANON_KEY "build-anon"

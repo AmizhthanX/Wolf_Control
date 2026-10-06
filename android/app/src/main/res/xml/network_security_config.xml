@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cleartext is permitted, and then narrowed in code to private addresses only.
+
+  The ESP32 has no certificate and no way to obtain a trusted one for a device
+  on a home LAN, so its API is plain HTTP. That link is not protected by
+  confidentiality and does not need to be: the request body is an ECDSA-signed
+  envelope that the controller verifies itself, with a nonce cache and a 15-30
+  second expiry, so an eavesdropper on your Wi-Fi learns that a command
+  happened and can do nothing with it.
+
+  This used to permit cleartext only to the single name "wolfpc.local", which
+  was tighter but stopped working the moment the app started dialling addresses
+  instead of names — and it had to start doing that, because a phone with
+  strict Private DNS resolves nothing at all while the internet is down, mDNS
+  names included. A static allow-list cannot express "whatever private address
+  the controller reports today".
+
+  So the platform allows cleartext and LanClient enforces the real rule: it
+  refuses to send anything in the clear unless the host is an RFC 1918 or
+  link-local address, or a .local name. Everything else — Supabase included,
+  whose URL is validated as https:// wherever it is accepted — stays on TLS.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

@@ -1,0 +1,38 @@
+# ---- secrets: never commit ----
+.env
+.env.local
+*.env
+firmware/include/credentials.h
+android/local.properties
+android/app/google-services.json
+**/*.keystore
+**/*.jks
+agent/src/WolfAgent/appsettings.Production.json
+supabase/.env
+supabase/.temp/
+
+# ---- build output ----
+firmware/.pio/
+firmware/.vscode/
+agent/**/bin/
+agent/**/obj/
+android/.gradle/
+android/build/
+android/**/build/
+android/.idea/
+android/.kotlin/
+credential-provider/**/x64/
+credential-provider/**/Debug/
+credential-provider/**/Release/
+node_modules/
+dist/
+
+# ---- editor / os ----
+.vs/
+.DS_Store
+Thumbs.db
+*.user
+
+.tools/
+firmware/tests/storage/build/
+Key.txt
