@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img"><title>WolfPC architecture: phone commands travel through cloud or LAN to the controller and agent</title>
+<rect width="1200" height="600" fill="#0c1220"/>
+<text x="44" y="53" font-family="Segoe UI,Arial,sans-serif" font-size="29" font-weight="700" fill="#e8eef9">One phone. Two routes. The right device for each job.</text>
+<text x="44" y="89" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400" fill="#aebed5">Commands are signed on your phone and verified again on the receiving device.</text>
+<rect x="40" y="162" width="242" height="292" rx="16" fill="#142035" stroke="#35475f" stroke-width="2"/>
+<text x="64" y="207" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" fill="#51d8c5">ANDROID APP</text>
+<text x="64" y="254" font-family="Segoe UI,Arial,sans-serif" font-size="21" font-weight="700" fill="#e8eef9">Choose an action</text>
+<text x="64" y="290" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400" fill="#aebed5">Approve with biometrics</text>
+<text x="64" y="322" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400" fill="#aebed5">Sign the command</text>
+<rect x="64" y="368" width="191" height="51" rx="10" fill="#1a3343"/>
+<text x="78" y="399" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400" fill="#e8eef9">Refresh PC status</text>
+<rect x="372" y="139" width="303" height="134" rx="16" fill="#142035" stroke="#35475f" stroke-width="2"/>
+<text x="396" y="179" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" fill="#51d8c5">SUPABASE</text>
+<text x="396" y="220" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400" fill="#e8eef9">Auth / queue / status</text>
+<text x="396" y="249" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="400" fill="#aebed5">Realtime wakes the agent</text>
+<rect x="372" y="346" width="303" height="119" rx="16" fill="#142035" stroke="#35475f" stroke-width="2"/>
+<text x="396" y="385" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" fill="#51d8c5">LOCAL NETWORK</text>
+<text x="396" y="426" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400" fill="#e8eef9">Direct device requests</text>
+<text x="396" y="452" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#aebed5">When the LAN path is reachable</text>
+<polyline points="282,206 365,206" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="357,200 365,206 357,212" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="282,405 365,405" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="357,399 365,405 357,411" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="675,206 739,206 739,403 795,403" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="739,208 795,208" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="787,202 795,208 787,214" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="675,405 710,405 710,246" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="710,246 795,246" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="787,240 795,246 787,252" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="710,444 795,444" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="787,438 795,444 787,450" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="710,405 710,444" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="803" y="139" width="355" height="156" rx="16" fill="#142035" stroke="#35475f" stroke-width="2"/>
+<text x="828" y="179" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" fill="#51d8c5">ESP32 + RELAYS</text>
+<text x="828" y="221" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" fill="#e8eef9">POWER ON / HARD RESET</text>
+<text x="828" y="256" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="400" fill="#aebed5">Dry contacts act like case buttons</text>
+<rect x="803" y="346" width="355" height="142" rx="16" fill="#142035" stroke="#35475f" stroke-width="2"/>
+<text x="828" y="383" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="700" fill="#51d8c5">WINDOWS AGENT + WOLF TILE</text>
+<text x="828" y="426" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="700" fill="#e8eef9">SHUTDOWN / RESTART / LOCK</text>
+<text x="828" y="461" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="400" fill="#aebed5">Phone sign-in and session status</text>
+<rect x="40" y="521" width="1118" height="48" rx="12" fill="#1a2a3c"/>
+<text x="65" y="551" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400" fill="#e8eef9">Physical fallback: the case Power / Reset buttons and Windows password tile remain available.</text>
+</svg>

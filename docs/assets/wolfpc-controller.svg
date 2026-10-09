@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="460" viewBox="0 0 1200 460" role="img"><title>WolfPC ESP32 controller: standby-powered hardware for power and reset</title>
+<rect width="1200" height="460" fill="#0c1220"/>
+<text x="44" y="61" font-family="Segoe UI,Arial,sans-serif" font-size="35" font-weight="700" fill="#e8eef9">The small board that wakes your PC.</text>
+<text x="44" y="98" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400" fill="#aebed5">ESP32 controller / conceptual overview — not a pin-level wiring guide</text>
+<rect x="40" y="152" width="235" height="209" rx="16" fill="#142035" stroke="#35475f" stroke-width="2"/>
+<text x="57" y="189" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="700" fill="#51d8c5">01 / STANDBY POWER</text>
+<text x="57" y="231" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="700" fill="#e8eef9">5VSB + protected supply</text>
+<text x="57" y="283" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#aebed5">Keeps the controller alive</text>
+<text x="57" y="312" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#aebed5">while Windows is shut down.</text>
+<rect x="330" y="152" width="242" height="209" rx="16" fill="#142035" stroke="#35475f" stroke-width="2"/>
+<text x="347" y="189" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="700" fill="#51d8c5">02 / ESP32</text>
+<text x="347" y="231" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="700" fill="#e8eef9">Verify. Pulse. Release.</text>
+<text x="347" y="283" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#aebed5">Wi-Fi, signed commands,</text>
+<text x="347" y="312" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#aebed5">configuration recovery.</text>
+<rect x="627" y="152" width="237" height="209" rx="16" fill="#142035" stroke="#35475f" stroke-width="2"/>
+<text x="644" y="189" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="700" fill="#51d8c5">03 / TWO RELAYS</text>
+<text x="644" y="231" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="700" fill="#e8eef9">Momentary dry contacts</text>
+<text x="644" y="283" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#aebed5">CH1: Power / CH2: Reset</text>
+<text x="644" y="312" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#aebed5">COM + NO contacts only.</text>
+<rect x="919" y="152" width="241" height="209" rx="16" fill="#142035" stroke="#35475f" stroke-width="2"/>
+<text x="936" y="189" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="700" fill="#51d8c5">04 / PC HEADER</text>
+<text x="936" y="231" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="700" fill="#e8eef9">Works beside case buttons</text>
+<text x="936" y="283" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#aebed5">Parallel button connections.</text>
+<text x="936" y="312" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="400" fill="#aebed5">No GPIO into PWR / RESET.</text>
+<polyline points="275,244 323,244" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="315,238 323,244 315,250" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="572,244 620,244" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="612,238 620,244 612,250" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="864,244 912,244" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="904,238 912,244 904,250" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="44" y="419" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400" fill="#cce5ec">GPIO 18 / power     •     GPIO 19 / reset     •     Max pulse 2 s     •     Cooldown 4 s</text>
+</svg>

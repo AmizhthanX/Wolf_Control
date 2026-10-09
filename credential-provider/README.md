@@ -1,76 +1,103 @@
-# Wolf Credential Provider (Phase 8)
+![WolfPC phone approval and Windows](../docs/assets/wolfpc-hero.png)
 
-The tile that signs you in when your phone approves it.
+# The Wolf sign-in tile
+
+**Approve on your phone. Let Windows handle the sign-in.**
+
+This C++ credential provider adds the Wolf tile to Windows' sign-in screen.
+It talks to the agent over a named pipe, waits for a verified phone approval,
+and submits the enrolled credential through Windows' normal authentication path.
+
+[Back to WolfPC](../README.md) · [Agent setup](../agent/README.md) · [Phone-unlock design](../docs/PHASE8-LOGIN.md)
+
+## What “phone unlock” means here
+
+Your Windows password is enrolled and sealed locally by the agent using DPAPI.
+After the paired phone signs an approval and the agent verifies it, the credential
+is released once to the provider. The password is not sent to Supabase.
+
+This is a credential provider, **not a custom LSA authentication package**.
+Windows still authenticates with the enrolled credential. A local administrator
+can access machine-protected data, so this does not protect against a compromised
+administrator on the PC.
+
+## Before installing
+
+You'll need Windows 11, CMake, the Windows SDK, and Visual Studio's **Desktop
+development with C++** workload. Test provider changes in a VM with a snapshot
+first: this DLL runs inside the process that draws the sign-in screen.
+
+Keep the Windows password tile available. Wolf does not filter it away, and a
+working password sign-in is the fallback when the agent or phone is unavailable.
+
+## Test the approval chain first
+
+Install and pair the agent and app, then use an Administrator PowerShell:
 
 ```powershell
-.\install\register.ps1      # build, install, register
-.\install\unregister.ps1    # take it off again
+& "C:\Program Files\WolfPC\WolfAgent.exe" enroll-login
+& "C:\Program Files\WolfPC\WolfAgent.exe" login-test
 ```
 
-**Do this in a virtual machine first, with a snapshot.** A credential provider
-is loaded by LogonUI, and a bad one can leave a login screen with nothing
-usable on it — on a machine you then cannot log in to in order to fix it.
+Use the Windows account password, not a Hello PIN. Approve the challenge on the
+phone. The harness verifies that a credential can be released once and that
+claiming the same token again fails, without using LogonUI.
 
-Read `../docs/PHASE8-LOGIN.md` first. It covers the design, why this is a
-credential provider **without** a custom LSA authentication package, and the
-pipe protocol it speaks.
+## Build and register
 
-## Test it without the login screen
+From this directory, in Administrator PowerShell:
 
-`WolfAgent.exe login-test` speaks the same pipe protocol from a console and
-stands in for this DLL. Use it first, and keep using it. A bug in the agent,
-the phone or the crypto costs a console window to find; the same bug behind a
-credential provider costs a VM, a snapshot and a reboot.
+```powershell
+.\install\register.ps1
+```
 
-## How it is put together
+The script builds, copies, and registers the provider. Follow the
+[phone-unlock guide](../docs/PHASE8-LOGIN.md) for setup and recovery details.
 
-| File | What it does |
-| ---- | ------------ |
-| `dll.cpp` | `DllGetClassObject`, `DllCanUnloadNow` — the only two exports |
-| `ClassFactory.cpp` | hands `WolfProvider` instances to LogonUI |
-| `Provider.cpp` | one tile; reports auto-logon once an approval is waiting |
-| `Credential.cpp` | the state machine, and the `KERB_INTERACTIVE_UNLOCK_LOGON` packing |
-| `PipeClient.cpp` | the named pipe, overlapped, everything timed out |
-
-### Why there is a background thread
-
-Approving a login is a human act with a 60 second budget, and
-`GetSerialization` runs on the thread that draws the login screen. Blocking
-there freezes the whole screen — no tiles, no password box, nothing to do but
-hold the power button.
-
-So submitting starts a worker and returns `CPGSR_NO_CREDENTIAL_NOT_FINISHED`,
-which keeps the tile alive without holding the thread. When the worker has a
-credential it tells the provider, LogonUI re-enumerates, sees auto-logon, and
-calls `GetSerialization` again — this time with something to return. That round
-trip is the only way to submit a credential from off the UI thread.
-
-### The two rules
-
-1. **Never filter away the password tile.** This provider does not implement
-   `ICredentialProviderFilter` at all. It is the recovery path, and Microsoft's
-   own guidance is to leave a system provider available.
-2. **Never block.** Every pipe call has a timeout, which is why `PipeClient`
-   uses overlapped I/O rather than plain `ReadFile`.
-
-The tile is also never the default unless an approval is already waiting, so a
-boot with the agent down looks like a boot without any of this installed.
-
-## If something goes wrong
-
-Boot into Safe Mode — hold Shift, Restart, Troubleshoot, Advanced options,
-Startup Settings — where third-party credential providers are not loaded, and
-run `install\unregister.ps1`. That script removes the registry key before it
-touches any file, so the step that recovers the machine cannot fail because a
-DLL is in use.
-
-## Building by hand
+To build without installing:
 
 ```powershell
 cmake -S . -B build -A x64
 cmake --build build --config Release
 ```
 
-Needs the **Desktop development with C++** workload: MSVC and the Windows SDK.
-The runtime is linked statically, so there is no redistributable to install and
-nothing to go missing at the one moment nobody can log in to fix it.
+The runtime is linked statically. The provider is for the account enrolled on
+this PC; re-run enrollment after changing that account's Windows password.
+
+## Try it on the sign-in screen
+
+Lock Windows with Win+L, dismiss the lock-screen cover if necessary, and select
+the Wolf tile. Give the provider a moment to connect to the agent. Refresh the
+app and approve Unlock when it becomes available. If the flow fails, use the
+Windows password tile and inspect the agent's Application event log.
+
+## How the code stays responsive
+
+Phone approval is a human action and can take several seconds. Pipe work runs
+on a background thread instead of blocking the thread drawing the sign-in
+screen. Once approval is ready, the provider asks Windows to enumerate the
+credentials again and submit the result.
+
+| Source | Role |
+| --- | --- |
+| `dll.cpp` | COM exports |
+| `ClassFactory.cpp` | Creates provider instances |
+| `Provider.cpp` | Tile enumeration and ready-approval notification |
+| `Credential.cpp` | Tile state, enrolled-account binding, credential serialization |
+| `PipeClient.cpp` | Timed, overlapped named-pipe communication |
+
+Preserve the timeouts, background work, and password fallback when making changes.
+Use both the console harness and the real C++ provider: they can reveal different
+protocol problems.
+
+## Remove or recover
+
+From an Administrator terminal in this directory:
+
+```powershell
+.\install\unregister.ps1
+```
+
+If a modified provider prevents normal sign-in, use the recovery steps in the
+phone-unlock guide to enter Safe Mode and unregister it. The script removes the
+registration before attempting to remove the DLL.

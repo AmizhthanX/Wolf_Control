@@ -1,54 +1,120 @@
-# Supabase control plane
+![WolfPC system overview](../docs/assets/wolfpc-architecture.png)
 
-Schema, RLS and eight Edge Functions. See `../docs/DEPLOY.md` for the full
-runbook and `../docs/PROTOCOL.md` for what goes over the wire.
+# Supabase backend
 
-```bash
-supabase link --project-ref <ref>
+**The shared meeting point for your phone, controller, and PC.**
+
+Supabase holds the owner account, paired phone keys, device presence, and command
+queue. Edge Functions verify requests and deliver work. The devices still verify
+phone signatures themselves before touching hardware or Windows.
+
+[Back to WolfPC](../README.md) · [Deployment guide](../docs/DEPLOY.md) · [Security model](../docs/SECURITY.md)
+
+## Deploy from the repository root
+
+Install the Supabase CLI and sign in. Replace `YOUR_PROJECT_REF` with the reference
+for your own project:
+
+```powershell
+supabase login
+supabase link --project-ref YOUR_PROJECT_REF
 supabase db push
-supabase secrets set WOLF_DEVICE_KEY=<from: node ../tools/provision/provision.mjs genkey>
-for fn in enqueue-command device-poll device-ack agent-status \
-          pair-device create-pairing-code login-challenge login-respond; do
-  supabase functions deploy "$fn"
-done
 ```
 
-## Migrations
+If the command is unavailable on Windows, use `npx supabase` in place of
+`supabase`. The CLI will prompt for credentials when it needs them.
 
-| File                            | What it establishes                                  |
-| ------------------------------- | ---------------------------------------------------- |
-| `..._schema.sql`                | tables, enums, indexes, the auth.users mirror trigger |
-| `..._rls.sql`                   | row level security — read the header comment first    |
-| `..._functions.sql`             | claim / ack / heartbeat / expire / sweep              |
-| `..._realtime_and_cron.sql`     | the realtime publication and pg_cron jobs             |
+Generate a device-wrapping key with:
 
-## The authorisation model in one paragraph
+```powershell
+node tools/provision/provision.mjs genkey
+```
 
-The phone may read its own world and write only its own preferences. It cannot
-insert a command: RLS denies it, and `enqueue-command` is the sole writer,
-because only a function can verify the biometric-backed ECDSA signature before a
-row exists. A stolen JWT with no phone key is therefore not enough to move
-hardware. `device_secrets` and `device_nonces` have RLS enabled and **no
-policies at all**, so every non-service role sees an empty table.
+Set `WOLF_DEVICE_KEY` in the project's Edge Function secrets to that value.
+It must be a base64-encoded 32-byte key. Keep the same value in the ignored
+provisioning `.env` file. Back it up securely: existing device secrets depend on it.
 
-## Function secrets
+Deploy all eight functions from PowerShell:
 
-| Secret                  | Purpose                                                  |
-| ----------------------- | -------------------------------------------------------- |
-| `WOLF_DEVICE_KEY`       | AES-256-GCM key wrapping every device secret. 32 bytes, base64. |
-| `WOLF_POLL_INTERVAL_MS` | Returned to devices on every poll; change it here, not in firmware. |
+```powershell
+$functions = @(
+    'enqueue-command', 'device-poll', 'device-ack', 'agent-status',
+    'pair-device', 'create-pairing-code', 'login-challenge', 'login-respond'
+)
+foreach ($function in $functions) {
+    supabase functions deploy $function
+}
+```
 
-`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are injected by the platform.
+Create the owner account and provision the PC and its devices using the
+[tools guide](../tools/README.md).
 
-## verify_jwt
+## What lives here
 
-Off for the four device endpoints — the ESP32 and the agent hold no JWT and
-authenticate with an HMAC their handlers verify. On for the three phone-facing
-ones, so an unauthenticated request never reaches our code. See `config.toml`.
+| Part | Purpose |
+| --- | --- |
+| `migrations/` | Schema, RLS, dispatch helpers, presence jobs, and later changes such as LOCK |
+| `functions/enqueue-command/` | Validate and queue a signed phone command |
+| `functions/device-poll/` | Authenticate devices, deliver work, refresh trusted keys |
+| `functions/device-ack/` | Record execution outcomes |
+| `functions/agent-status/` | Report Windows session and LAN facts |
+| Pairing functions | Issue pairing codes and register or revoke phone keys |
+| Login functions | Exchange sign-in challenges and signed approvals |
+| `functions/_shared/` | Authentication, crypto, envelope rules, and agent wake hints |
+| `config.toml` | Local project configuration and function JWT gates |
 
-## A note on quota
+## Who can do what?
 
-`device-poll` at the PRD's 2 second interval is roughly 1.3 M invocations a
-month against a 500 K free-tier ceiling. `DEPLOY.md` has the three ways to deal
-with that; the shortest is `WOLF_POLL_INTERVAL_MS=8000`, which needs no code
-change anywhere.
+The signed-in phone reads its owner's data. It cannot insert a command directly:
+RLS blocks that, and `enqueue-command` verifies the signature before creating
+the row. Device-secret and nonce tables are inaccessible to ordinary client roles.
+
+The controller and agent authenticate with device HMACs. Their endpoints disable
+the platform JWT gate because those devices do not hold user JWTs; each handler
+performs its own device verification. The phone-facing handlers verify ownership
+and authorization as appropriate. See [config.toml](config.toml) and the function
+code for the exact gates.
+
+`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are supplied to hosted functions
+by Supabase. The service-role key belongs in trusted tooling and server code,
+never in the phone app or controller firmware.
+
+## Quick agent delivery without constant fast polling
+
+Queuing an agent command also sends a short-lived, HMAC-authenticated Realtime
+wake hint. The agent wakes its poll loop, fetches the command, and verifies the
+phone signature. A wake message cannot authorize an action.
+
+If a socket disconnects or a hint is missed, fallback polling continues. The
+ESP32 still uses polling for cloud commands; the local route can avoid that wait.
+
+## Plan your polling budget
+
+There are three sources of recurring Edge Function calls: controller polling,
+agent polling, and agent heartbeats. Count all three, plus user actions and
+change-triggered updates.
+
+For one always-running timer, a 30-day estimate is:
+
+```text
+monthly calls ≈ 2,592,000 / interval_in_seconds
+```
+
+Use `WOLF_POLL_INTERVAL_MS` to adjust the interval returned to devices, and
+`agent/install/set-intervals.ps1` to configure the agent timers and estimate
+their combined cost. Check your project's current allowance in Supabase rather
+than relying on an old plan number. Keep heartbeat intervals compatible with
+the presence thresholds so online devices do not appear offline.
+
+## Check the command rules
+
+With Deno installed, from the repository root:
+
+```powershell
+deno check supabase/functions/enqueue-command/index.ts
+deno test supabase/functions/_shared/envelope_test.ts
+```
+
+For protocol details, read [PROTOCOL.md](../docs/PROTOCOL.md). For the installed
+Refresh/Lock update and its verification limits, read
+[UPDATES-1.1.md](../docs/UPDATES-1.1.md).

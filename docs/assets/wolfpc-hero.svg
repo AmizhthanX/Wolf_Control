@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="460" viewBox="0 0 1200 460" role="img"><title>WolfPC Remote: your PC, one tap away</title>
+<rect width="1200" height="460" fill="#0c1220"/>
+<rect x="30" y="30" width="1140" height="400" rx="24" fill="#101b2e" stroke="#23324a" stroke-width="2"/>
+<text x="64" y="75" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="700" fill="#51d8c5">WOLFPC / REMOTE</text>
+<text x="60" y="148" font-family="Segoe UI,Arial,sans-serif" font-size="49" font-weight="700" fill="#e8eef9">Your PC. One tap away.</text>
+<text x="64" y="198" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="400" fill="#aebed5">Power it on. Lock it. Sign in with your phone.</text>
+<rect x="64" y="235" width="186" height="42" rx="21" fill="#192b41"/>
+<text x="80" y="260" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="700" fill="#cce5ec">ESP32 + RELAYS</text>
+<rect x="264" y="235" width="134" height="42" rx="21" fill="#192b41"/>
+<text x="280" y="260" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="700" fill="#cce5ec">WINDOWS</text>
+<rect x="412" y="235" width="144" height="42" rx="21" fill="#192b41"/>
+<text x="428" y="260" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="700" fill="#cce5ec">ANDROID</text>
+<rect x="570" y="235" width="150" height="42" rx="21" fill="#192b41"/>
+<text x="586" y="260" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="700" fill="#cce5ec">SUPABASE</text>
+<text x="64" y="346" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="700" fill="#e8eef9">Cloud + local network</text>
+<text x="64" y="376" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400" fill="#aebed5">Biometric approval. Physical buttons still work.</text>
+<rect x="812" y="84" width="115" height="229" rx="19" fill="#0c1220" stroke="#51d8c5" stroke-width="2"/>
+<rect x="824" y="103" width="91" height="164" rx="10" fill="#173447"/>
+<circle cx="869" cy="169" r="21" fill="#51d8c5"/>
+<text x="859" y="175" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="700" fill="#0c1220">W</text>
+<polyline points="845,223 894,223" fill="none" stroke="#aebed5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="853,290 885,290" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="995" y="107" width="103" height="220" rx="12" fill="#17263b" stroke="#6d83bd" stroke-width="2"/>
+<rect x="1014" y="128" width="65" height="12" rx="4" fill="#293f5a"/>
+<circle cx="1046" cy="181" r="16" fill="#51d8c5"/>
+<polyline points="1018,235 1075,235" fill="none" stroke="#6d83bd" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="1018,251 1075,251" fill="none" stroke="#6d83bd" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="934,186 982,186" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="974,180 982,186 974,192" fill="none" stroke="#51d8c5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="831" y="370" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="700" fill="#aebed5">PHONE</text>
+<text x="1017" y="370" font-family="Segoe UI,Arial,sans-serif" font-size="15" font-weight="700" fill="#aebed5">PC</text>
+</svg>

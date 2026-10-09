@@ -1,39 +1,99 @@
-# Tools
+![WolfPC components and command paths](../docs/assets/wolfpc-architecture.png)
 
-## `provision/` — create the PC, its devices and their secrets
+# Project tools
 
-```bash
+**Set up devices, check who is online, and test the protocol without relays.**
+
+These Node.js scripts use built-in APIs and need no npm dependencies. Use Node
+18 or newer. Provisioning is administrative work; simulation is for development
+and diagnosis.
+
+[Back to WolfPC](../README.md) · [Deployment guide](../docs/DEPLOY.md) · [Protocol](../docs/PROTOCOL.md)
+
+## Provisioning: give the PC and controller their identities
+
+From the repository root, in PowerShell:
+
+```powershell
 cd tools/provision
-cp .env.example .env          # project url, service role key, WOLF_DEVICE_KEY
-node provision.mjs genkey                                   # make WOLF_DEVICE_KEY
-node provision.mjs init --email you@example.com --pc PC-001 # the one-time setup
-node provision.mjs status                                   # who is reporting in
-node provision.mjs paircode                                 # if the agent cannot reach the cloud
-node provision.mjs rotate --device wolfpc-001               # after a suspected leak
+if (!(Test-Path .env)) {
+    Copy-Item .env.example .env
+}
+node provision.mjs genkey
 ```
 
-`init` prints the two device secrets **once**. They are stored AES-256-GCM
-encrypted under `WOLF_DEVICE_KEY` and cannot be read back — losing them means
-rotating.
+Fill in `.env` with your Supabase URL, service-role key, and `WOLF_DEVICE_KEY`.
+The wrapping key must match the Edge Function secret. If you already provisioned
+devices, keep the existing key rather than generating a replacement.
 
-No dependencies; it speaks PostgREST and the auth admin API over `fetch`.
+Create the owner account in Supabase before initializing:
 
-## `simulator/` — a fake controller and a fake agent
+```powershell
+node provision.mjs init --email you@example.com --pc PC-001 --name "Wolf PC"
+node provision.mjs status --pc PC-001
+```
 
-Runs the real protocol against the real control plane, so the app and the Edge
-Functions can be exercised before any hardware exists, and so a failing command
-can be diagnosed without opening the case.
+Initialization prints the controller and agent secrets. Put each in the correct
+device's local configuration and keep them out of logs, screenshots, and Git.
+The database stores encrypted device secrets; the tool does not offer a command
+to display them again.
 
-```bash
+### Useful day-to-day commands
+
+| Command | What it does |
+| --- | --- |
+| `node provision.mjs status --pc PC-001` | Show device presence |
+| `node provision.mjs paircode --pc PC-001` | Create a pairing code without the agent CLI |
+| `node provision.mjs phones --pc PC-001` | List paired phones and their active keys |
+| `node provision.mjs revoke --device "PHONE_DEVICE_ID"` | Revoke a phone identity from the list above |
+| `node provision.mjs rotate --device wolfpc-001` | Replace the controller's device secret |
+| `node provision.mjs rotate --device PC-001` | Replace the agent's device secret |
+
+**Rotation invalidates the old secret immediately.** Apply the newly printed
+value to the device before expecting it to report again. For the controller,
+also update your ignored build credentials so a future erase does not restore
+an obsolete secret.
+
+## Simulator: test before opening the case
+
+The simulator runs fake controller and agent workers against a real Supabase
+project. It verifies signed envelopes and records simulated outcomes instead
+of pressing a relay or shutting down Windows. It is useful for checking pairing,
+signing, queue delivery, and acknowledgements.
+
+Use a test project or separate test device identities. Running simulators with
+the same identities as live devices can claim their queued commands.
+
+From the repository root:
+
+```powershell
 cd tools/simulator
-cp .env.example .env
-node simulate.mjs both --controller-secret <hex> --agent-secret <hex>
+if (!(Test-Path .env)) {
+    Copy-Item .env.example .env
+}
 ```
 
-The controller half also serves the LAN routes on `http://localhost:8080`, so
-the app's offline path can be tested by pointing Settings at that address.
+Fill in the project URL and anon key. Replace the following placeholders with
+your test device secrets:
 
-It performs the same signature verification the firmware does, so an envelope
-the simulator rejects is one the real hardware would reject too. That is the
-point of it: a bug in signing shows up here, in a stack trace, rather than as a
-relay that silently does not click.
+```powershell
+node simulate.mjs both `
+    --controller-secret "YOUR_64_HEX_TEST_CONTROLLER_SECRET" `
+    --agent-secret "YOUR_64_HEX_TEST_AGENT_SECRET"
+```
+
+The fake controller exposes a local API on port 8080. From a physical phone,
+use the development PC's reachable private LAN address and port, not
+`localhost`—that would refer to the phone itself. The simulator is a protocol
+aid, not a replacement for hardware, TLS, or Windows sign-in acceptance tests.
+
+## Keep local credentials local
+
+Real `.env` files are ignored by Git. Commit placeholder-only examples and
+redacted diagnostics. A service-role key or device secret is sensitive; the
+Supabase anon key is a public client identifier, though row access still depends
+on the project's policies.
+
+For focused checks of the actual firmware storage and Windows signing code,
+see the [firmware tests](../firmware/README.md#recovery-tests) and
+[agent checks](../agent/README.md#for-contributors).
